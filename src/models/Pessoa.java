@@ -1,10 +1,13 @@
+
+
 package models;
 
 import java.time.LocalDate;
 
 public class Pessoa {
-    private String nome;
-    private LocalDate dataNascimento;
+    public String nome;
+    public LocalDate dataNascimento;
+
 
     public Pessoa(String nome, LocalDate dataNascimento) {
         this.nome = nome;
@@ -28,4 +31,13 @@ public class Pessoa {
         this.dataNascimento = dataNascimento;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "Pessoa{" +
+                "nome='" + nome + '\'' +
+                ", dataNascimento=" +  +
+                '}';
+    }
+
 }

@@ -2,12 +2,15 @@ package models;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Funcionario extends Pessoa{
 
     private BigDecimal salario;
     private String funcao;
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public Funcionario(String nome, LocalDate dataNascimento, BigDecimal salario, String funcao) {
         super(nome, dataNascimento);
@@ -46,5 +49,13 @@ public class Funcionario extends Pessoa{
         int result = Objects.hashCode(getSalario());
         result = 31 * result + Objects.hashCode(getFuncao());
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return  "Nome: " + nome
+                + ", data de nascimento: " + formatter.format(dataNascimento)
+                + ", salário: " + salario +
+                ", função: " + funcao;
     }
 }
