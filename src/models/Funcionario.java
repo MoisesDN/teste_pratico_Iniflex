@@ -1,6 +1,7 @@
 package models;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -10,6 +11,7 @@ public class Funcionario extends Pessoa{
     private BigDecimal salario;
     private String funcao;
 
+    NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public Funcionario(String nome, LocalDate dataNascimento, BigDecimal salario, String funcao) {
@@ -51,11 +53,25 @@ public class Funcionario extends Pessoa{
         return result;
     }
 
+    public static double salarioMinino(double salario) {
+        return salario / 1212.0;
+    }
+
+    public static boolean containsUpperCase(String value) {
+        for (char ch : value.toCharArray()) {
+            if (Character.isUpperCase(ch)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return  "Nome: " + nome
-                + ", data de nascimento: " + formatter.format(dataNascimento)
-                + ", salário: " + salario +
-                ", função: " + funcao;
+                + " , data de nascimento: " + formatter.format(dataNascimento)
+                + " , salário: " + numberFormat.format(salario) +
+                " , função: " + funcao;
     }
+
 }

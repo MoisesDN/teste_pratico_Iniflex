@@ -2,33 +2,109 @@ package application;
 
 import models.Funcionario;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Month;
+import java.time.Period;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
 
-        List<Funcionario> funcionario = new ArrayList<>();
+        Locale.setDefault(new Locale("pt", "BR"));
+        NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
 
-        funcionario.add(new Funcionario("Maria", LocalDate.parse("2000-10-18"), BigDecimal.valueOf(2009.44),"Operador"));
-        funcionario.add(new Funcionario("João", LocalDate.parse("1990-05-12"), BigDecimal.valueOf(2284.38),"Operador"));
-        funcionario.add(new Funcionario("Caio", LocalDate.parse("1961-05-02"), BigDecimal.valueOf(9836.14),"Coordenador"));
-        funcionario.add(new Funcionario("Miguel", LocalDate.parse("1988-10-14"), BigDecimal.valueOf(19119.88),"Diretor"));
-        funcionario.add(new Funcionario("Alice", LocalDate.parse("1995-01-05"), BigDecimal.valueOf(2234.68),"Recepcionista"));
-        funcionario.add(new Funcionario("Heitor", LocalDate.parse("1999-11-19"), BigDecimal.valueOf(1582.72),"Operador"));
-        funcionario.add(new Funcionario("Arthur", LocalDate.parse("1993-03-31"), BigDecimal.valueOf(4071.84),"Contador"));
-        funcionario.add(new Funcionario("Laura", LocalDate.parse("1994-07-08"), BigDecimal.valueOf(3017.45),"Gerente"));
-        funcionario.add(new Funcionario("Heloísa", LocalDate.parse("2003-05-24"), BigDecimal.valueOf(1606.85),"Eletricista"));
-        funcionario.add(new Funcionario("Helena", LocalDate.parse("1996-09-02"), BigDecimal.valueOf(2799.93),"Gerente"));
+        //Inserir todos os funcionários, na mesma ordem e informações da tabela acima.
+        List<Funcionario> funcionarios = new ArrayList<>();
+        String path = "src/resources/in.txt";
 
-        funcionario.forEach(System.out::println);
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
 
-        funcionario.remove(1);
+            String line = br.readLine();
+            while (line != null) {
+                String[] fields = line.split(",");
 
-        System.out.println("--- Após remover o Funcionário João da lista ---");
+                funcionarios.add(new Funcionario(fields[0], LocalDate.parse(fields[1]), BigDecimal.valueOf(Double.parseDouble(fields[2])), fields[3]));
+                line = br.readLine();
+            }
+            funcionarios.forEach(System.out::println);
 
-        funcionario.forEach(System.out::println);
+            //Remover o funcionário “João” da lista.
+            funcionarios.remove(1);
+            System.out.println();
+
+            //Imprimir todos os funcionários com todas suas informações.
+            funcionarios.forEach(System.out::println);
+            System.out.println();
+
+            // Aumento de 10% nos salários dos funcionários
+            funcionarios.forEach(p -> p.setSalario(p.getSalario().multiply(new BigDecimal("1.1"))));
+            funcionarios.forEach(System.out::println);
+            System.out.println();
+
+            //Agrupar os funcionários por função em um MAP, sendo a chave a “função” e o valor a “lista de funcionários”.
+            Map<Boolean, List<Funcionario>> listaDeFuncionarios = funcionarios.stream()
+                    .collect(Collectors.partitioningBy(a -> Funcionario.containsUpperCase(String.valueOf(a))));
+
+            List<Funcionario> finalOutput = listaDeFuncionarios.get(Boolean.TRUE)
+                    .stream()
+                    .sorted(Comparator.comparing(Funcionario::getFuncao))
+                    .collect(Collectors.toList());
+
+            finalOutput.addAll(listaDeFuncionarios.get(Boolean.FALSE)
+                    .stream()
+                    .sorted() // sorted naturally
+                    .collect(Collectors.toList()));
+            //Imprimir os funcionários, agrupados por função.
+            finalOutput.forEach(System.out::println);
+
+            System.out.println();
+            //Imprimir a lista de funcionários por ordem alfabética.
+            funcionarios.stream()
+                    .sorted(Comparator.comparing(Funcionario::getNome))
+                    .forEach(System.out::println);
+            System.out.println();
+
+            //Imprimir os funcionários que fazem aniversário no mês 10 e 12.
+            funcionarios.stream()
+                    .filter(d -> (d.dataNascimento.getMonth() == Month.OCTOBER) || (d.dataNascimento.getMonth() == Month.DECEMBER))
+                    .forEach(System.out::println);
+            System.out.println();
+
+            //Imprimir o funcionário com a maior idade, exibir os atributos: nome e idade.
+            LocalDate maiorIdade = funcionarios.get(0).getDataNascimento();
+            String nome = "";
+            int idade = 0;
+
+            for (int i=0; i< funcionarios.size(); i++) {
+                if (funcionarios.get(i).getDataNascimento().getYear() < maiorIdade.getYear()) {
+                    maiorIdade = funcionarios.get(i).getDataNascimento();
+                    nome = funcionarios.get(i).getNome();
+
+                    idade = Period.between(maiorIdade, LocalDate.now()).getYears();
+                }
+            }
+            System.out.println(nome +", "+ idade + " anos");
+            System.out.println();
+
+            //Imprimir o total dos salários dos funcionários.
+            double totalSalario = funcionarios.stream()
+                    .mapToDouble(salario -> salario.getSalario().doubleValue()).sum();
+            System.out.println("Total dos salários dos funcionários: " + numberFormat.format(totalSalario));
+            System.out.println();
+
+            //Imprimir quantos salários mínimos ganha cada funcionário.
+            for (Funcionario funcionario : funcionarios) {
+                System.out.println(funcionario.getNome() + ", salários mínimos " + String.format("%.2f", funcionario.salarioMinino(funcionario.getSalario().doubleValue())));
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 }

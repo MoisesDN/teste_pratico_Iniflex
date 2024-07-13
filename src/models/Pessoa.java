@@ -18,18 +18,18 @@ public class Pessoa {
         return nome;
     }
 
-    public Pessoa setNome(String nome) {
+    public String setNome(String nome) {
         this.nome = nome;
-        return this;
+        return this.getNome();
     }
 
     public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public Pessoa setDataNascimento(LocalDate dataNascimento) {
+    public LocalDate setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
-        return this;
+        return this.getDataNascimento();
     }
 
     @Override
